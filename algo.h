@@ -1,28 +1,45 @@
 #include <iostream>
 #include <gsl/gsl_matrix.h>
 #include <vector>
+#include <numeric>
 
+template <typename T, typename A>
+int arg_max(vector<T, A> const& vec) {
+  	return static_cast<int>(distance(vec.begin(), max_element(vec.begin(), vec.end())));
+}
+
+template <typename T, typename A>
+int arg_min(vector<T, A> const& vec) {
+  	return static_cast<int>(distance(vec.begin(), min_element(vec.begin(), vec.end())));
+}
+
+template <typename T, typename A>
+int sum(vector<T, A> const& vec) {
+	return std::accumulate(available_node.segin(), available_nodes.end(), decltype(vector)::value_type(0));
+}
+
+	
 class AntColonyOptimizer {
 	public:
-		int num_ants; 							// number of ants
+		int num_ants; 					// number of ants
 		float evaporation_rate; 		// evaporation rate
 		float intensification; 			// intensification constant	
-		float alpha;								// weighing factor for pheromone
-		float beta;									// weighing factor for heuristic
-		float beta_decay;						// decay rate for beta
-		float rho;									// probability of random choice
+		float alpha;					// weighing factor for pheromone
+		float beta;						// weighing factor for heuristic
+		float beta_decay;				// decay rate for beta
+		float rho;						// probability of random choice
 
 		gsl_matrix *pheromone; 			// pheromone matrix
 		gsl_matrix *heuristic; 			// heuristic matrix
 		gsl_matrix *probability; 		// probability matrix
-		gsl_matrix *visited; 				// visited matrix
-		vector<int> available_nodes;// available nodes
+		gsl_matrix *visited; 			// visited matrix
+		vector<int> available_nodes;	// available nodes
 
-		int* best_series 						// best series
-		int best_score; 						// best score
-		int fitted; 								// fitted or not
-		int* best_path; 						// best path
-		float fit_time; 						// time to fit
+		int* best_series 				// best series
+		int best_score; 				// best score
+		int fitted; 					// fitted or not
+		int* best_path; 				// best path
+		float fit_time; 				// time to fit
 
 		AntColonyOptimizer(int num_ants, float evaporation_rate, float intensification, float alpha, float beta, float beta_decay, float rho)  {
 			num_ants = num_ants;
@@ -68,6 +85,35 @@ class AntColonyOptimizer {
 
 			// initializing available_nodes
 			for(int i = 0; i < num_nodes; i++) {
-				available_nodes.insert(i);
+				available_nodes.push_back(i);
 			}
-}
+		}
+
+		void reinstate_nodes() {
+			// reinstating available nodes
+			available_nodes.clear();
+			for(int i = 0; i < visited -> size1; i++) {
+				available_nodes.push_back(i);
+			}
+		}
+
+		void update_probabilities() {
+			// updating probability matrix
+			for(int i = 0; i < probability -> size1; i++) {
+				for(int j = 0; j < probability -> size2; j++) {
+					gsl_matrix_set(probability, i, j, gsl_matrix_get(pheromone, i, j) ** alpha * gsl_matrix_get(heuristic, i, j) ** beta);
+				}
+			}
+		}
+
+		int chose_next_node(int from_node) {
+			// choosing next node
+			int numerator = gsl_matrix_get(probability, from_node, available_nodes[0]);
+ 			if rand() % 1 < rho {
+ 				return arg_max(available_nodes);
+ 			} else {
+				int denominator = sum(available_nodes);
+				float proabaility = numerator / denominator;
+				int next_node 
+
+	}
