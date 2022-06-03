@@ -5,6 +5,6 @@ clean:
 
 test:
 	clean
-	gcc -03 -o test test.c
+	gcc -03 -fexceptions -o test test.c
 	./test
 
