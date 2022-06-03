@@ -23,6 +23,9 @@ to equations (7) and (8).
 
 ## Running Tests
 
+## Further Study
+
+- [ ] look into FaSCO for seeing how velocities of the ants can possibly shorten computations required for NP-Hard problems
 
 ## Links
 
