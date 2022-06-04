@@ -151,6 +151,8 @@ class AntColonyOptimizer {
 		gsl_vector *scores = gsl_vector_calloc(paths.size());
 		vector<vector<int>> coordinates_i;
 		vector<vector<int>> coordinates_j;
+		
+		// iterating through every path and evaluating it
 		for(int i = 0; i < paths.size(); i++) {
 			int score = 0;
 			vector<int> cord_i;
@@ -162,6 +164,8 @@ class AntColonyOptimizer {
 			scores[i] = score;
 			coordinates_i.push_back(cord_i);
 			coordinates_j.push_back(cord_j);
+
+		// returning best path based on mode
 		if(model == 0) {
 			int best = arg_min(scores);
 		} elif(model == 1) {
@@ -181,17 +185,19 @@ class AntColonyOptimizer {
 	}
 
 	void intensify(vector<int> best_coord) {
+		// intensifying pheromone matrix for best corrdinates
 		int prev = gsl_matrix_get(pheromone, best_coord[0], best_coord[1]);
 		gsl_matrix_set(pheromone, best_coord[0], best_coord[1], prev * intensification);
 	}
 
-	void fit(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
+	void fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
+		// fitting given distance travelling salesman problem to optimizer
 		printf("beginning aco optimization fit with %d iterations\n", iterations);
 		visited = map_matrix;
 		init();
 		int num_equal = 0;
 
 		for(int i = 0; i < iterations; i++) {
-			
+			// reinstating nodes
 	}
 }
