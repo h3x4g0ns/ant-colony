@@ -32,3 +32,4 @@ to equations (7) and (8).
 - [original paper for implementation](https://arxiv.org/pdf/2205.15691.pdf)
 - [similar python implentation](https://github.com/johnberroa/Ant-Colony-Optimization/blob/master/AntColonyOptimizer.py)
 - [gsl: c/c++'s numpy](https://www.gnu.org/software/gsl/doc/html/vectors.html)
+- [discrete distributions](http://candcplusplus.com/c11-discrete-distribution-random-number-generator)
