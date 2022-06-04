@@ -1,8 +1,10 @@
 #include <iostream>
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 #include <vector>
 #include <numeric>
 #include <random>
+#include <ctime>
 
 template <typename T, typename A>
 int arg_max(vector<T, A> const& vec) {
@@ -144,5 +146,52 @@ class AntColonyOptimizer {
 		}
 	}
 
-	vector<int> evaluate()
+	vector<int> evaluate(vector<vector<int>> paths, int mode) {
+		// evaluating paths
+		gsl_vector *scores = gsl_vector_calloc(paths.size());
+		vector<vector<int>> coordinates_i;
+		vector<vector<int>> coordinates_j;
+		for(int i = 0; i < paths.size(); i++) {
+			int score = 0;
+			vector<int> cord_i;
+			vector<int> cord_j;
+			for(int j = 0; j < paths[i].size(); j++) {
+				cord_i.push_back(paths[i][j]);
+				cord_j.push_back(paths[i][j+1]);
+				score += gsl_matrix_get(visited, paths[i][j], paths[i][j+1]);
+			scores[i] = score;
+			coordinates_i.push_back(cord_i);
+			coordinates_j.push_back(cord_j);
+		if(model == 0) {
+			int best = arg_min(scores);
+		} elif(model == 1) {
+			int best = arg_max(scores);
+		}
+		return vector<int>{coordinates_i[best], coordinates_j[best], paths[best], scores[best]};
+	}
+
+	void evaporation() {
+		// evaporating pheromone matrix
+		for(int i = 0; i < pheromone -> size1; i++) {
+			for(int j = 0; j < pheromone -> size2; j++) {
+				gsl_matrix_set(pheromone, i, j, gsl_matrix_get(pheromone, i, j) * (1-beta));
+				gsl_matrix_set(heuristic, i, j, gsl_matrix_get(heuristic, i, j) * (1-beta_decay));
+			}
+		}
+	}
+
+	void intensify(vector<int> best_coord) {
+		int prev = gsl_matrix_get(pheromone, best_coord[0], best_coord[1]);
+		gsl_matrix_set(pheromone, best_coord[0], best_coord[1], prev * intensification);
+	}
+
+	void fit(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
+		printf("beginning aco optimization fit with %d iterations\n", iterations);
+		visited = map_matrix;
+		init();
+		int num_equal = 0;
+
+		for(int i = 0; i < iterations; i++) {
+			
+	}
 }
