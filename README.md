@@ -21,7 +21,47 @@ to equations (7) and (8).
 7. end for
 8. Choose and return the optimal path found.
 
-## Running Tests
+## Installation
+
+Make sure you have `gsl` installed. On mac, running `make install-mac` will set up gsl libraries accordingly.
+
+## Running tests
+
+A couple included tests are running instances of the Travelling Salesman Problem. While the ACO algo is best known for NP-Hard problems, the versatility of this algo is quite broad. Problems for the TSP are inputted as distance matrices, although it wouldn't require too many changes in order to reduce the problem into something else altogether.
+
+Run `make test-mac` to run all included tests in `test.cpp`.
+
+### Adding tests
+
+The included tests all run variations of TSP. Here's an example of the input.
+
+```cpp
+// creating distance matrix
+float distances[16] = {0, 4, 1, 3, 
+                    4, 0, 2, 5,
+                    1, 2, 0, 5, 
+                    3, 1, 5, 0};
+gsl_matrix *map_matrix = gsl_matrix_alloc(4, 4);
+for(int i = 0; i < 16; i++) {
+    gsl_matrix_set(map_matrix, i / 4, i % 4, distances[i]);
+}
+
+// setting hyperparameters
+int num_ants = 10;
+float evaporation_rate = 0.1;
+float intensification = 2.0;
+float alpha = 1.0;
+float beta = 1.0;
+float beta_decay = 0.0;
+float rho = 0.1;
+
+// creating ant colony optimizer
+AntColonyOptimizer optimizer = AntColonyOptimizer(num_ants, evaporation_rate, intensification, alpha, beta, beta_decay, rho);
+
+// fitting distance matrix to optimizer
+int best = optimizer.fit_tsp(map_matrix);
+printf("best score: %d\n", best);
+```
 
 ## Further Study
 
