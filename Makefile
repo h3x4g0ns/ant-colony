@@ -1,9 +1,12 @@
 .PHONY: install test  
 
-install:
+install-mac:
 	brew install gsl
 
-test:
-	gcc -Wall -I/usr/local/Cellar/gsl/2.7.1/include -fexceptions -o test.out -c test.cpp
+test-mac:
+	clang++ -Wall -I/usr/local/Cellar/gsl/2.7.1/include -fexceptions -o test.out test.cpp
 	./test.out
 
+test:
+	clang++ -Wall -I/usr/include -fexceptions -o test.out test.cpp
+	./test.out
