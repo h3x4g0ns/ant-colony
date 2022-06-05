@@ -38,10 +38,10 @@ class AntColonyOptimizer {
 	gsl_matrix *visited; 			// visited matrix
 	vector<int> available_nodes;	// available nodes
 
-	int* best_series 				// best series
+	vector<int> best_series 				// best series
 	int best_score; 				// best score
 	int fitted; 					// fitted or not
-	int* best_path; 				// best path
+	vector<int> best_path; 				// best path
 	float fit_time; 				// time to fit
 
 	AntColonyOptimizer(int num_ants, float evaporation_rate, float intensification, float alpha, float beta, float beta_decay, float rho)  {
@@ -161,9 +161,12 @@ class AntColonyOptimizer {
 				cord_i.push_back(paths[i][j]);
 				cord_j.push_back(paths[i][j+1]);
 				score += gsl_matrix_get(visited, paths[i][j], paths[i][j+1]);
+			}
+
 			scores[i] = score;
 			coordinates_i.push_back(cord_i);
 			coordinates_j.push_back(cord_j);
+		}			
 
 		// returning best path based on mode
 		if(model == 0) {
@@ -184,20 +187,100 @@ class AntColonyOptimizer {
 		}
 	}
 
-	void intensify(vector<int> best_coord) {
-		// intensifying pheromone matrix for best corrdinates
-		int prev = gsl_matrix_get(pheromone, best_coord[0], best_coord[1]);
-		gsl_matrix_set(pheromone, best_coord[0], best_coord[1], prev * intensification);
+	void intensify(int coord_i, int coord_j) {
+		// intensifying pheromone matrix for given coordinate
+		int prev = gsl_matrix_get(pheromone, coord_i, coord_j);
+		gsl_matrix_set(pheromone, coord_i, coord_j, prev * intensification);
 	}
 
 	void fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
 		// fitting given distance travelling salesman problem to optimizer
 		printf("beginning aco optimization fit with %d iterations\n", iterations);
 		visited = map_matrix;
+		time_t start = time(0);
 		init();
 		int num_equal = 0;
 
 		for(int i = 0; i < iterations; i++) {
-			// reinstating nodes
+			time_t start_iter = time(0);
+			vector<vector<int>> paths;
+			vector<int> path;
+
+			for(int j = 0; j < num_ants; j++) {
+				int current_node = rand() % available_nodes.size();
+				int start_node = current_node;
+				while(1) {
+					path.push_back(current_node);
+					remove_node(current_node);
+					if(!available_nodes.empty()) {
+						int idx = chose_next_node(current_node);
+						current_node = available_nodes[idx];
+					} else {
+						break;
+					}
+				}
+
+				// adding path to paths
+				path.push_back(start_node);
+				self.reinstate_nodes();
+				path.push_back(path);
+				path.clear();
+			}
+
+			// evaluating paths and unpacking			
+			vector<int> results = evaluate(paths, mode);
+			int best_path_coord_i = results[0];
+			int best_path_coord_j = results[1];
+			int best_path_score = results[2];
+			int best_path = results[3];
+
+			if(i == 0) {
+				int best_current_score = best_score;
+			} else {
+				if(mode == 0) {
+					if best_score < best_current_score:
+						best_current_score = best_score;
+						this -> best_path = best_path;
+
+				} else if(mode == 1) {
+					if best_score > best_current_score:
+						best_current_score = best_score;
+						this -> best_path = best_path;
+				} 
+
+				if(best_score == best_current_score) {
+					num_equal += 1;
+				} else {
+					num_equal = 0;
+				}
+
+				best_series.push_back(best_score);
+				evaporation();
+				intensify(best_path_coord_i, best_path_coord_j);
+
+				printf("best score at iteration %d: %.3f; overall: %.3f (%.2fs)", i, best_score, best_current_score, difftime(time(0), start_iter));
+
+				if(best_score == best_current_score && num_equal == early_stopping) {
+					printf("\nstopping early with %d iterations completed\n", early_stopping);
+					break;
+				}
+			}
+		}
+
+		fit_time = difftime(time(0), start_iter);
+		fitted = 1;
+
+		if(mode == 0) {
+			best_score = best_series[arg_min(best_series)];
+			printf("aco fit completed with best score: %.3f (%.2fs)", best_score, fit_time);
+			return self.best_score;
+		} else if(mode == 1) {
+			best_score = best_series[arg_max(best_series)];
+			printf("aco fit completed with best score: %.3f (%.2fs)", best_score, fit_time);
+			return self.best_score;
+		} else {
+			printf("invalid mode: select 0 for min or 1 for max");
+			return -1;
+		}
 	}
 }
