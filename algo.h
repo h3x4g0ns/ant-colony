@@ -5,58 +5,59 @@
 #include <numeric>
 #include <random>
 #include <ctime>
+#include <cmath>
 
 template <typename T, typename A>
-int arg_max(vector<T, A> const& vec) {
-  	return static_cast<int>(distance(vec.begin(), max_element(vec.begin(), vec.end())));
+int arg_max(std::vector<T, A> const& vec) {
+  	return static_cast<int>(std::distance(vec.begin(), max_element(vec.begin(), vec.end())));
 }
 
 template <typename T, typename A>
-int arg_min(vector<T, A> const& vec) {
-  	return static_cast<int>(distance(vec.begin(), min_element(vec.begin(), vec.end())));
+int arg_min(std::vector<T, A> const& vec) {
+  	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
 }
 
 template <typename T, typename A>
-int sum(vector<T, A> const& vec) {
-	return std::accumulate(available_node.segin(), available_nodes.end(), decltype(vector)::value_type(0));
+int sum(std::vector<T, A> const& vec) {
+	return std::accumulate(vec.begin(), vec.end(), 0);
 }
 
 	
 class AntColonyOptimizer {
 	public:
-	int num_ants; 					// number of ants
-	float evaporation_rate; 		// evaporation rate
-	float intensification; 			// intensification constant	
-	float alpha;					// weighing factor for pheromone
-	float beta;						// weighing factor for heuristic
-	float beta_decay;				// decay rate for beta
-	float rho;						// probability of random choice
+		int num_ants; 					// number of ants
+		float evaporation_rate; 		// evaporation rate
+		float intensification; 			// intensification constant	
+		float alpha;					// weighing factor for pheromone
+		float beta;						// weighing factor for heuristic
+		float beta_decay;				// decay rate for beta
+		float rho;						// probability of random choice
 
-	gsl_matrix *pheromone; 			// pheromone matrix
-	gsl_matrix *heuristic; 			// heuristic matrix
-	gsl_matrix *probability; 		// probability matrix
-	gsl_matrix *visited; 			// visited matrix
-	vector<int> available_nodes;	// available nodes
+		gsl_matrix *pheromone; 			// pheromone matrix
+		gsl_matrix *heuristic; 			// heuristic matrix
+		gsl_matrix *probability; 		// probability matrix
+		gsl_matrix *visited; 			// visited matrix
+		std::vector<int> available_nodes;	// available nodes
 
-	vector<int> best_series 				// best series
-	int best_score; 				// best score
-	int fitted; 					// fitted or not
-	vector<int> best_path; 				// best path
-	float fit_time; 				// time to fit
+		std::vector<int> best_series; 		// best series
+		float best; 				// best score
+		int fitted; 					// fitted or not
+		std::vector<int> best_path; 			// best path
+		float fit_time; 				// time to fit
 
 	AntColonyOptimizer(int num_ants, float evaporation_rate, float intensification, float alpha, float beta, float beta_decay, float rho)  {
-		num_ants = num_ants;
-		evaporation_rate = evaporation_rate;
-		intensification = intensification;
-		alpha = alpha;
-		beta = beta;
-		beta_decay = beta_decay;
-		rho = rho;
+		this -> num_ants = num_ants;
+		this -> evaporation_rate = evaporation_rate;
+		this -> intensification = intensification;
+		this -> alpha = alpha;
+		this -> beta = beta;
+		this -> beta_decay = beta_decay;
+		this -> rho = rho;
 	}
 
 	void init() {
 		// checking to make sure dimensions are same
-		if visited -> size1 != visited -> size2 {
+		if(visited -> size1 != visited -> size2) {
 			std::cout << "visited matrix is not square" << std::endl;
 			return;
 		}
@@ -65,7 +66,7 @@ class AntColonyOptimizer {
 		// initializing pheromone matrix
 		int num_nodes = visited -> size1;
 		pheromone = gsl_matrix_calloc(num_nodes, num_nodes);
-		gsl_matrix_set(pheromone, 1.0);
+		gsl_matrix_set_all(pheromone, 1.0);
 		for(int i = 0; i < num_nodes; i++) {
 			gsl_matrix_set(pheromone, i, i, 0.0);
 		}
@@ -81,8 +82,9 @@ class AntColonyOptimizer {
 		// initializing probability matrix
 		probability = gsl_matrix_calloc(num_nodes, num_nodes);
 		for(int i = 0; i < num_nodes; i++) {
-			for(int j = 0; j < num_nodes; i++) {
-				gsl_matrix_set(probability, i, j, gsl_matrix_get(pheromone, i, j) ** alpha * gsl_matrix_get(heuristic, i, j) ** beta);
+			for(int j = 0; j < num_nodes; j++) {
+				gsl_matrix_set(probability, i, j, pow(gsl_matrix_get(pheromone, i, j), alpha) * 
+					pow(gsl_matrix_get(heuristic, i, j), beta));
 			}
 		}
 
@@ -104,33 +106,34 @@ class AntColonyOptimizer {
 		// updating probability matrix
 		for(int i = 0; i < probability -> size1; i++) {
 			for(int j = 0; j < probability -> size2; j++) {
-				gsl_matrix_set(probability, i, j, gsl_matrix_get(pheromone, i, j) ** alpha * gsl_matrix_get(heuristic, i, j) ** beta);
+				gsl_matrix_set(probability, i, j, pow(gsl_matrix_get(pheromone, i, j), alpha) * 
+					pow(gsl_matrix_get(heuristic, i, j), beta));
 			}
 		}
 	}
 
 	int chose_next_node(int from_node) {
 		// finding probabilities of all the next nodes
-		vector<float> numerator;
+		std::vector<float> numerator;
 		for(int i = 0; i < available_nodes.size(); i++) {
 			numerator.push_back(gsl_matrix_get(probability, from_node, available_nodes[i]));
 		}
 
 		// if p < rho, then best path is chosen
 		// otherwise use pheremone to choose next node
-		if rand() % 1 < rho {
+		if(rand() % 1 < rho) {
 			return arg_max(available_nodes);
 		} else {
 			int denominator = sum(available_nodes);
-			vector<int> probabilities;
+			std::vector<int> probabilities;
 			for(int i = 0; i < numerator.size(); i++) {
 				probabilities.push_back(numerator[i] / denominator);
 			}
 			
 			// randomly choosing integer from 0 to size of probabilities
 			// based on given probabilities
-			discrete_distribution<float> distribution(probabilities.begin(), probabilities.end());
-			default_random_engine dre;
+			std::discrete_distribution<> distribution(probabilities.begin(), probabilities.end());
+			std::default_random_engine dre;
 			int next_node = distribution(dre);
 			return available_nodes[next_node];
 		}
@@ -146,17 +149,17 @@ class AntColonyOptimizer {
 		}
 	}
 
-	vector<int> evaluate(vector<vector<int>> paths, int mode) {
+	std::vector<std::vector<int> > evaluate(std::vector<std::vector<int> > paths, int mode) {
 		// evaluating paths
-		gsl_vector *scores = gsl_vector_calloc(paths.size());
-		vector<vector<int>> coordinates_i;
-		vector<vector<int>> coordinates_j;
+		std::vector<int> scores(paths.size(), 0);
+		std::vector<std::vector<int> > coordinates_i;
+		std::vector<std::vector<int> > coordinates_j;
 		
 		// iterating through every path and evaluating it
 		for(int i = 0; i < paths.size(); i++) {
 			int score = 0;
-			vector<int> cord_i;
-			vector<int> cord_j;
+			std::vector<int> cord_i;
+			std::vector<int> cord_j;
 			for(int j = 0; j < paths[i].size(); j++) {
 				cord_i.push_back(paths[i][j]);
 				cord_j.push_back(paths[i][j+1]);
@@ -169,12 +172,20 @@ class AntColonyOptimizer {
 		}			
 
 		// returning best path based on mode
-		if(model == 0) {
-			int best = arg_min(scores);
-		} elif(model == 1) {
-			int best = arg_max(scores);
+		int best;
+		if(mode == 0) {
+			best = arg_min(scores);
+		} else {
+			best = arg_max(scores);
 		}
-		return vector<int>{coordinates_i[best], coordinates_j[best], paths[best], scores[best]};
+		std::vector<std::vector<int> > return_value;
+		return_value.push_back(coordinates_i[best]);
+		return_value.push_back(coordinates_j[best]);
+		return_value.push_back(paths[best]);
+		std::vector<int> vect;
+		vect.push_back(scores[best]);
+		return_value.push_back(vect);
+		return return_value;
 	}
 
 	void evaporation() {
@@ -193,7 +204,7 @@ class AntColonyOptimizer {
 		gsl_matrix_set(pheromone, coord_i, coord_j, prev * intensification);
 	}
 
-	void fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
+	int fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
 		// fitting given distance travelling salesman problem to optimizer
 		printf("beginning aco optimization fit with %d iterations\n", iterations);
 		visited = map_matrix;
@@ -203,8 +214,8 @@ class AntColonyOptimizer {
 
 		for(int i = 0; i < iterations; i++) {
 			time_t start_iter = time(0);
-			vector<vector<int>> paths;
-			vector<int> path;
+			std::vector<std::vector<int> > paths;
+			std::vector<int> path;
 
 			for(int j = 0; j < num_ants; j++) {
 				int current_node = rand() % available_nodes.size();
@@ -222,30 +233,32 @@ class AntColonyOptimizer {
 
 				// adding path to paths
 				path.push_back(start_node);
-				self.reinstate_nodes();
-				path.push_back(path);
+				reinstate_nodes();
+				paths.push_back(path);
 				path.clear();
 			}
 
 			// evaluating paths and unpacking			
-			vector<int> results = evaluate(paths, mode);
-			int best_path_coord_i = results[0];
-			int best_path_coord_j = results[1];
-			int best_path_score = results[2];
-			int best_path = results[3];
+			std::vector<std::vector<int> > results = evaluate(paths, mode);
+			int best_path_coord_i = results[0][0];
+			int best_path_coord_j = results[1][0];
+			std::vector<int> best_path = results[2];
+			float best_score = results[3][0];
 
+			float best_current_score = 0;
 			if(i == 0) {
-				int best_current_score = best_score;
+				best_current_score = best_score;
 			} else {
 				if(mode == 0) {
-					if best_score < best_current_score:
+					if(best_score < best_current_score) {
 						best_current_score = best_score;
 						this -> best_path = best_path;
-
+					}
 				} else if(mode == 1) {
-					if best_score > best_current_score:
+					if(best_score > best_current_score) {
 						best_current_score = best_score;
 						this -> best_path = best_path;
+					}
 				} 
 
 				if(best_score == best_current_score) {
@@ -267,20 +280,20 @@ class AntColonyOptimizer {
 			}
 		}
 
-		fit_time = difftime(time(0), start_iter);
+		fit_time = difftime(time(0), start);
 		fitted = 1;
 
 		if(mode == 0) {
-			best_score = best_series[arg_min(best_series)];
-			printf("aco fit completed with best score: %.3f (%.2fs)", best_score, fit_time);
-			return self.best_score;
+			best = best_series[arg_min(best_series)];
+			printf("aco fit completed with best score: %.3f (%.2fs)", best, fit_time);
+			return best;
 		} else if(mode == 1) {
-			best_score = best_series[arg_max(best_series)];
-			printf("aco fit completed with best score: %.3f (%.2fs)", best_score, fit_time);
-			return self.best_score;
+			best = best_series[arg_max(best_series)];
+			printf("aco fit completed with best score: %.3f (%.2fs)", best, fit_time);
+			return best;
 		} else {
 			printf("invalid mode: select 0 for min or 1 for max");
 			return -1;
 		}
 	}
-}
+};

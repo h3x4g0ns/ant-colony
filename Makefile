@@ -1,10 +1,9 @@
-.PHONY: test clean 
+.PHONY: install test  
 
-clean:
-	rm -rf *.o
+install:
+	brew install gsl
 
 test:
-	clean
-	gcc -03 -fexceptions -o test test.c
+	gcc -Wall -I/usr/local/Cellar/gsl/2.7.1/include -fexceptions -o test.out -c test.cpp
 	./test
 
