@@ -205,7 +205,7 @@ class AntColonyOptimizer {
 		gsl_matrix_set(pheromone, coord_i, coord_j, prev * intensification);
 	}
 
-	int fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode = 0, int early_stopping = 20) {
+	int fit_tsp(gsl_matrix *map_matrix, int iterations=100, int mode=1, int early_stopping=20) {
 		// fitting given distance travelling salesman problem to optimizer
 		printf("beginning aco optimization fit with %d iterations\n", iterations);
 		visited = map_matrix;
@@ -214,13 +214,11 @@ class AntColonyOptimizer {
 		int num_equal = 0;
 
 		for(int i = 0; i < iterations; i++) {
-			printf("starting iteration %d\n", i);
 			time_t start_iter = time(0);
 			std::vector<std::vector<int> > paths;
 			std::vector<int> path;
 
 			for(int j = 0; j < num_ants; j++) {
-				printf("iteration %d, ant %d\n", i, j);
 				int current_node = rand() % available_nodes.size();
 				int start_node = current_node;
 				while(1) {
@@ -254,6 +252,7 @@ class AntColonyOptimizer {
 			} else {
 				if(mode == 0) {
 					if(best_score < best_current_score) {
+						printf("best score improved from %f to %f\n", best_current_score, best_score);
 						best_current_score = best_score;
 						this -> best_path = best_path;
 					}
@@ -274,7 +273,7 @@ class AntColonyOptimizer {
 				evaporation();
 				intensify(best_path_coord_i, best_path_coord_j);
 
-				printf("best score at iteration %d: %.3f; overall: %.3f (%.2fs)", i, best_score, best_current_score, difftime(time(0), start_iter));
+				printf("best score at iteration %d: %.3f; overall: %.3f (%.2fs)\n", i, best_score, best_current_score, difftime(time(0), start_iter));
 
 				if(best_score == best_current_score && num_equal == early_stopping) {
 					printf("\nstopping early with %d iterations completed\n", early_stopping);
@@ -288,11 +287,11 @@ class AntColonyOptimizer {
 
 		if(mode == 0) {
 			best = best_series[arg_min(best_series)];
-			printf("aco fit completed with best score: %.3f (%.2fs)", best, fit_time);
+			printf("aco fit (min) completed with best score: %.3f (%.2fs)\n", best, fit_time);
 			return best;
 		} else if(mode == 1) {
 			best = best_series[arg_max(best_series)];
-			printf("aco fit completed with best score: %.3f (%.2fs)", best, fit_time);
+			printf("aco fit (max) completed with best score: %.3f (%.2fs)\n", best, fit_time);
 			return best;
 		} else {
 			printf("invalid mode: select 0 for min or 1 for max");
