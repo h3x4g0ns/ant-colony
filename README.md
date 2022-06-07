@@ -21,61 +21,11 @@ to equations (7) and (8).
 7. end for
 8. Choose and return the optimal path found.
 
-## Installation
-
-Download: [ftp://ftp.gnu.org/gnu/gsl/](ftp://ftp.gnu.org/gnu/gsl/)
-
-```sh
-wget ftp://ftp.gnu.org/gnu/gsl/gsl-*.*.tar.gz
-```
-
-`*.*` should be replaced by the version to be installed. Please check release history available at [https://www.gnu.org/software/gsl/](https://www.gnu.org/software/gsl/). You can also download here and unzip the program directly depending on the OS you are working with.
-
-Place the file in your home directory and unpack the file with the following command:
-
-```sh
-tar -zxvf gsl-*.*.tar.gz
-```
-This will create a directory called gsl-*.* in your home directory. Change to this directory.
-
-```
-cd gsl-1.7
-```
-
-The next step is to configure the installation and tell the system where to install the files. Create a directory to install your gsl package, say `/home/yourname/gsl` with the following command
-
-```sh
-mkdir /home/yourname/gsl
-```
-
-Now configure the installation and tell it to use your new directory. This step may take a few minutes.
-
-```
-./configure --prefix=/home/yourname/gsl
-```
-If there are no errors, compile the library. This step will take several minutes.
-
-```
-make
-```
-
-Now it is necessary to check and test the library before actually installing it. This step will take some time.
-
-```
-make check
-```
-
-If there are no errors, go ahead and install the library with:
-
-```
-make install
-```
-
 ## Running tests
 
 A couple included tests are running instances of the Travelling Salesman Problem. While the ACO algo is best known for NP-Hard problems, the versatility of this algo is quite broad. Problems for the TSP are inputted as distance matrices, although it wouldn't require too many changes in order to reduce the problem into something else altogether.
 
-Run `make test` to run all included tests in `test.cpp`.
+Run `make test` to run all included tests in `test.cpp`. Check Installation to make sure `gsl` package is installed.
 
 ### Adding tests
 
@@ -107,6 +57,56 @@ AntColonyOptimizer optimizer = AntColonyOptimizer(num_ants, evaporation_rate, in
 // fitting distance matrix to optimizer
 int best = optimizer.fit_tsp(map_matrix);
 printf("best score: %d\n", best);
+```
+
+## Installation
+
+Download:
+
+```sh
+wget ftp://ftp.gnu.org/gnu/gsl/gsl-*.*.tar.gz
+```
+
+`*.*` should be replaced by the version to be installed. Please check release history available at [https://www.gnu.org/software/gsl/](https://www.gnu.org/software/gsl/). You can also download here and unzip the program directly depending on the OS you are working with.
+
+Place the file in your home directory and unpack the file with the following command:
+
+```sh
+tar -zxvf gsl-*.*.tar.gz
+```
+This will create a directory called gsl-*.* in your home directory. Change to this directory.
+
+```sh
+cd gsl-1.7
+```
+
+The next step is to configure the installation and tell the system where to install the files. Create a directory to install your gsl package, say `/home/yourname/gsl` with the following command
+
+```sh
+mkdir /home/yourname/gsl
+```
+
+Now configure the installation and tell it to use your new directory. This step may take a few minutes.
+
+```sh
+./configure --prefix=/home/yourname/gsl
+```
+If there are no errors, compile the library. This step will take several minutes.
+
+```sh
+make
+```
+
+Now it is necessary to check and test the library before actually installing it. This step will take some time.
+
+```sh
+make check
+```
+
+If there are no errors, go ahead and install the library with:
+
+```sh
+make install
 ```
 
 ## Further Study
