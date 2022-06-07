@@ -1,4 +1,4 @@
-.PHONY: clean test debug
+.PHONY: clean build test debug
 
 clean:
 	rm -f *.o
