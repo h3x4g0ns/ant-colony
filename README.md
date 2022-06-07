@@ -21,15 +21,12 @@ to equations (7) and (8).
 7. end for
 8. Choose and return the optimal path found.
 
-## Installation
-
-Make sure you have `gsl` installed. On mac, running `make install-mac` will set up gsl libraries accordingly.
 
 ## Running tests
 
 A couple included tests are running instances of the Travelling Salesman Problem. While the ACO algo is best known for NP-Hard problems, the versatility of this algo is quite broad. Problems for the TSP are inputted as distance matrices, although it wouldn't require too many changes in order to reduce the problem into something else altogether.
 
-Run `make test-mac` to run all included tests in `test.cpp`.
+Run `make test` to run all included tests in `test.cpp`.
 
 ### Adding tests
 
