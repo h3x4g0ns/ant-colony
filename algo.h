@@ -214,11 +214,13 @@ class AntColonyOptimizer {
 		int num_equal = 0;
 
 		for(int i = 0; i < iterations; i++) {
+			printf("starting iteration %d\n", i);
 			time_t start_iter = time(0);
 			std::vector<std::vector<int> > paths;
 			std::vector<int> path;
 
 			for(int j = 0; j < num_ants; j++) {
+				printf("iteration %d, ant %d\n", i, j);
 				int current_node = rand() % available_nodes.size();
 				int start_node = current_node;
 				while(1) {

@@ -13,6 +13,5 @@ test-mac: clean
 	./test.run
 
 debug-mac: clean
-	clang++ -Wall -I/usr/local/Cellar/gsl/2.7.1/include -fexceptions -c -g test.cpp
-	clang++ -L/usr/local/Cellar/gsl/2.7.1/lib test.o -o test.run -lgsl -lgslcblas -lm
-	lldb ./test.run
+	g++ -Wall -I/usr/local/Cellar/gsl/2.7.1/include -fexceptions -g test.cpp -lgsl -lgslcblas -lm -o test.run
+	sudo cgdb test.run
