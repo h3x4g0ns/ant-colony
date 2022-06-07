@@ -52,7 +52,9 @@ float beta_decay = 0.0;
 float rho = 0.1;
 
 // creating ant colony optimizer
-AntColonyOptimizer optimizer = AntColonyOptimizer(num_ants, evaporation_rate, intensification, alpha, beta, beta_decay, rho);
+AntColonyOptimizer optimizer = AntColonyOptimizer(num_ants, 
+        evaporation_rate, intensification, 
+        alpha, beta, beta_decay, rho);
 
 // fitting distance matrix to optimizer
 int best = optimizer.fit_tsp(map_matrix);
